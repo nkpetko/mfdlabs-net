@@ -1,4 +1,4 @@
-name: Production Build Windows
+name: Production Test Linux
 
 on:
   push:
@@ -6,26 +6,24 @@ on:
       - "master"
     paths:
       - "src/**"
-      - "!src/test/**"
       - ".github/workflows/**"
       - "package.json"
       - "package-lock.json"
   pull_request:
     paths:
       - "src/**"
-      - "!src/test/**"
       - ".github/workflows/**"
       - "package.json"
       - "package-lock.json"
 
 jobs:
-  production-build-windows:
-    if: "!contains(toJSON(github.event.commits.*.message), '[SKIP CI]')"
+  production-test-linux:
+    if: "!contains(toJSON(github.event.commits.*.message), '[SKIP TEST]')"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: ["windows-2019", "windows-2022", "windows-latest"]
+        os: ["ubuntu-18.04", "ubuntu-20.04", "ubuntu-latest"]
         node: [12, 14, 16]
     steps:
       - name: Checkout repository.
@@ -36,5 +34,5 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Run the build-full script to update packages and build the project.
-        run: npm run build-full
+      - name: Run the test-full script to update packages and run the tests.
+        run: npm run test-full

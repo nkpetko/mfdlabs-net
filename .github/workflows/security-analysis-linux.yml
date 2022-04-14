@@ -5,13 +5,11 @@ on:
     branches:
       - "master"
     paths:
-      - "Source/**"
       - ".github/workflows/**"
       - "package.json"
       - "package-lock.json"
   pull_request:
     paths:
-      - "Source/**"
       - ".github/workflows/**"
       - "package.json"
       - "package-lock.json"
