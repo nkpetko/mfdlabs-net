@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-18.04", "ubuntu-20.04", "ubuntu-latest"]
-        node: [12, 14, 16]
+        node: [14, 16]
     steps:
       - name: Checkout repository.
         uses: actions/checkout@v2
@@ -36,5 +36,5 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Run the build script to update packages and build the project.
-        run: npm run build
+      - name: Run the build-full script to update packages and build the project.
+        run: npm run build-full
