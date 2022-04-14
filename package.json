@@ -1,0 +1,36 @@
+{
+	"name": "@mfdlabs/net",
+	"version": "1.0.0",
+	"description": "A networking library for Node.js. Includes methods for parsing IP addresses, fetching Route Tables, and more.",
+	"main": "lib/index.js",
+	"types": "lib/index.d.ts",
+	"scripts": {
+		"test": "jest --config jestconfig.json --verbose",
+		"build": "npm run clean && npm run compile",
+		"clean": "tsc -b --clean tsconfig.json",
+		"compile": "tsc -b -v tsconfig.json",
+		"lint": "tslint -p tsconfig.json -c tslint.json --fix",
+		"lint-ci": "tslint -p tsconfig.json -c tslint.json",
+		"format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+		"publish-package": "npm run lint && npm run test && npm run build && npm publish --access public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com/nkpetko/mfdlabs-net.git"
+	},
+	"author": "Nikita Petko <petko@vmminfra.net>",
+	"license": "Apache-2.0",
+	"devDependencies": {
+		"@types/jest": "^27.4.1",
+		"@types/node": "^17.0.7",
+		"jest": "^27.5.1",
+		"prettier": "^2.6.2",
+		"ts-jest": "^27.1.4",
+		"tslint": "^6.1.3",
+		"tslint-config-prettier": "^1.18.0",
+		"typescript": "^4.6.3"
+	},
+	"files": [
+		"lib/*"
+	]
+}

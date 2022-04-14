@@ -1,0 +1,25 @@
+{
+  "extends": [
+    "tslint:recommended",
+    "tslint-config-prettier"
+  ],
+  "rules": {
+    "interface-name": [
+      true,
+      "never-prefix"
+    ],
+    "semicolon": [
+      true,
+      "always"
+    ],
+    "object-literal-sort-keys": [
+      true,
+      "ignore-case"
+    ],
+    "no-bitwise": false,
+    "jsdoc-format": [
+      true,
+      "check-multiline-start"
+    ]
+  }
+}
