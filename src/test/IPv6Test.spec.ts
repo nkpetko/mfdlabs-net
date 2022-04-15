@@ -22,7 +22,49 @@
 
 import net from '..';
 
+function serializeBigInt(bigInt: bigint | number): string {
+  return bigInt.toString();
+}
+
 describe('IPv6', () => {
+  // Decompressing an IPv6 address
+  describe('#decompressIPv6', () => {
+    it('should decompress an IPv6 address', () => {
+      expect(net.decompressIPv6('2001:db8:85a3::8a2e:370:7334')).toBe('2001:0db8:85a3:0000:0000:8a2e:0370:7334');
+      expect(net.decompressIPv6('::1')).toBe('0000:0000:0000:0000:0000:0000:0000:0001');
+      expect(net.decompressIPv6('::')).toBe('0000:0000:0000:0000:0000:0000:0000:0000');
+    });
+
+    it('should decompress IPv4 mapped IPv6 address', () => {
+      expect(net.decompressIPv6('::ffff:127.0.0.1')).toBe('0000:0000:0000:0000:0000:ffff:7f00:0001');
+      expect(net.decompressIPv6('::ffff:192.168.0.50')).toBe('0000:0000:0000:0000:0000:ffff:c0a8:0032');
+      expect(net.decompressIPv6('127.0.0.1')).toBe('0000:0000:0000:0000:0000:ffff:7f00:0001');
+      expect(net.decompressIPv6('192.168.0.50')).toBe('0000:0000:0000:0000:0000:ffff:c0a8:0032');
+    });
+
+    it('should return the input if it is not a valid IPv6 address', () => {
+      expect(net.decompressIPv6('foo')).toBe('foo');
+      expect(net.decompressIPv6('2001:0db8:85a3:0000:0000:8a2e:0370:7334:')).toBe(
+        '2001:0db8:85a3:0000:0000:8a2e:0370:7334:',
+      );
+    });
+  });
+
+  // Compressing an IPv6 address
+  describe('#compressIPv6', () => {
+    it('should compress an IPv6 address', () => {
+      expect(net.compressIPv6('2001:db8:85a3:0000:0000:8a2e:370:7334')).toBe('2001:db8:85a3::8a2e:370:7334');
+      expect(net.compressIPv6('0000:0000:0000:0000:0000:0000:0000:0001')).toBe('::1');
+      expect(net.compressIPv6('0000:0000:0000:0000:0000:0000:0000:0000')).toBe('::');
+    });
+
+    it('should return the input if it is not a valid IPv6 address', () => {
+      expect(net.compressIPv6('foo')).toBe('foo');
+      expect(net.compressIPv6('2001:0db8:85a3:0000:0000:8a2e:0370:7334:')).toBe('2001:0db8:85a3:0000:0000:8a2e:0370:7334:');
+      expect(net.compressIPv6('127.0.0.1')).toBe('127.0.0.1');
+    });
+  });
+
   // Checking the validity of the IPv6 address
   describe('#isIPv6', () => {
     it('should return true for a valid IPv6 address', () => {
@@ -47,17 +89,22 @@ describe('IPv6', () => {
   /* Commented out because Jest cannot serialize BigInt
    * A fix for this would be to fetch SMALL numbers and convert them to Number
    * before passing them to the expect function
+   *
+   * More info: It was never because of Jest, it's because JSON.stringify does not recognize BigInt
+   *
+   * 15/04/2022: Fixed by .toString()
+   */
   // Converting the IPv6 address to a number
   describe('#ipv6ToNumber', () => {
     it('should convert any valid IPv6 to a number between 0 and 4294967295', () => {
-      expect(net.ipv6ToNumber('::1')).toBe(0x1);
-      expect(net.ipv6ToNumber('127.0.0.1')).toBe(0);
-      expect(net.ipv6ToNumber('fe80::1')).toBe(0xfe800000000000000000000000000001n);
+      expect(net.ipv6ToNumber('::1').toString()).toBe(serializeBigInt(0x1));
+      expect(net.ipv6ToNumber('127.0.0.1').toString()).toBe(serializeBigInt(0));
+      expect(net.ipv6ToNumber('fe80::1').toString()).toBe(serializeBigInt(0xfe800000000000000000000000000001n));
     });
 
     it('should return 0 for invalid ipv6', () => {
-      expect(net.ipv6ToNumber('foo')).toBe(0);
-      expect(net.ipv6ToNumber('127.0.0.1')).toBe(0);
+      expect(net.ipv6ToNumber('foo').toString()).toBe(serializeBigInt(0));
+      expect(net.ipv6ToNumber('127.0.0.1').toString()).toBe(serializeBigInt(0));
     });
   });
 
@@ -68,10 +115,10 @@ describe('IPv6', () => {
       expect(net.numberToIPv6(0x1)).toBe('::1');
       expect(net.numberToIPv6(0xfe800000000000000000000000000001n)).toBe('fe80::1');
       expect(net.numberToIPv6(0xffffffffffffffffffffffffffffffffn)).toBe('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff');
-      expect(net.numberToIPv6(0x7f000001, false)).toBe('0000:0000:0000:0000:0000:7f00:0001');
-      expect(net.numberToIPv6(0x1, false)).toBe('0000:0000:0000:0000:0000:0001');
+      expect(net.numberToIPv6(0x7f000001, false)).toBe('0000:0000:0000:0000:0000:0000:7f00:0001');
+      expect(net.numberToIPv6(0x1, false)).toBe('0000:0000:0000:0000:0000:0000:0000:0001');
       expect(net.numberToIPv6(0xfe800000000000000000000000000001n, false)).toBe(
-        '0000:0000:0000:0000:0000:fe80:0000:0001',
+        'fe80:0000:0000:0000:0000:0000:0000:0001',
       );
       expect(net.numberToIPv6(0xffffffffffffffffffffffffffffffffn, false)).toBe(
         'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
@@ -99,16 +146,16 @@ describe('IPv6', () => {
       expect(net.numberToIPv6(0x0a000001n)).toBe('::a00:0001');
       expect(net.numberToIPv6(0xfe800000000000000000000000000001n)).toBe('fe80::1');
       expect(net.numberToIPv6(0xffffffffffffffffffffffffffffffffn)).toBe('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff');
-      expect(net.numberToIPv6(0x7f000001n, false)).toBe('0000:0000:0000:0000:0000:7f00:0001');
-      expect(net.numberToIPv6(0x0a000001n, false)).toBe('0000:0000:0000:0000:0000:a00:0001');
+      expect(net.numberToIPv6(0x7f000001n, false)).toBe('0000:0000:0000:0000:0000:0000:7f00:0001');
+      expect(net.numberToIPv6(0x0a000001n, false)).toBe('0000:0000:0000:0000:0000:0000:0a00:0001');
       expect(net.numberToIPv6(0xfe800000000000000000000000000001n, false)).toBe(
-        '0000:0000:0000:0000:0000:fe80:0000:0001',
+        'fe80:0000:0000:0000:0000:0000:0000:0001',
       );
       expect(net.numberToIPv6(0xffffffffffffffffffffffffffffffffn, false)).toBe(
         'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
       );
     });
-  }); */
+  });
 
   // Converting an IPv6 CIDR to it's respective start and end addresses
   describe('#ipv6CIDRToStartEnd', () => {
