@@ -2380,7 +2380,7 @@ class NetModule {
   public static getDefaultGateway(): string {
     const routes = this.getRouteTable();
 
-    return routes.filter((r) => r.type === 'iv4' && r.gateway !== 'On-link')[0].gateway;
+    return routes.filter((r) => r.type === 'iv4' && r.gateway !== 'On-link')[0]?.gateway;
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
