@@ -279,14 +279,17 @@ class NetModule {
     // decompresses an IPv6 address
     // by expanding the :: notation
     // and filling in the missing leading zeroes
-    if (!this.isIPv6(ip)) {
-      return ip;
-    }
-
+    const oldIP = ip;
     let fullAddress = '';
     let expandedAddress = '';
 
     let groups = [];
+
+    if (this.isIPv4(ip)) {
+      // if IPv4 only, expand it to an IPv4 mapped IPv6 address
+      // ::ffff:x.x.x.x
+      ip = '::ffff:' + ip;
+    }
 
     // Look for embedded IPv4 addresses
     if (this.ValidateIPv4Regex.test(ip)) {
@@ -299,6 +302,10 @@ class NetModule {
       }
 
       ip = ip.replace(this.ExtractIPv4FromIPv6Regex, IPv4);
+    }
+
+    if (!this.isIPv6(ip)) {
+      return oldIP;
     }
 
     if (ip.indexOf('::') === -1)
@@ -361,6 +368,21 @@ class NetModule {
 
     // If the segment length is 8 and the far left segment has :: then we need to remove it
     const segments = replaced.split(':').filter((segment) => segment.length > 0);
+
+    // If any segment has leading zeroes, remove them
+    for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      const hasLeadingZeroes = segment.startsWith('0');
+      
+      if (hasLeadingZeroes) {
+        // Find the number of leading zeroes
+        let leadingZeroes = 0;
+        while (segment[leadingZeroes] === '0') leadingZeroes++;
+
+        // Remove the leading zeroes
+        segments[i] = segment.substring(leadingZeroes);
+      }
+    }
 
     if (segments.length === this.ValidIPv6GroupsCount) replaced = replaced.replace(/::/, '');
 
