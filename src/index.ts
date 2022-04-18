@@ -364,27 +364,27 @@ class NetModule {
       return ip;
     }
 
-    let replaced = ip.replace(this.CompressIPv6Regex, '::');
+    // We want to expand the address to the full form
+    // So we can remove leading zeroes
+    ip = this.decompressIPv6(ip);
 
-    // If the segment length is 8 and the far left segment has :: then we need to remove it
-    const segments = replaced.split(':').filter((segment) => segment.length > 0);
+    let segments = ip.split(':').filter((segment) => segment.length > 0);
 
-    // If any segment has leading zeroes, remove them
     for (let i = 0; i < segments.length; i++) {
-      const segment = segments[i];
-      const hasLeadingZeroes = segment.startsWith('0');
-      
-      if (hasLeadingZeroes) {
-        // Find the number of leading zeroes
-        let leadingZeroes = 0;
-        while (segment[leadingZeroes] === '0') leadingZeroes++;
-
-        // Remove the leading zeroes
-        segments[i] = segment.substring(leadingZeroes);
-      }
+      // if the segment is not all zeroes then remove leading zeroes
+      if (segments[i].match(/0/g)?.length !== this.ValidIPv6GroupSize) segments[i] = segments[i].replace(/^0+/, '');
     }
 
-    if (segments.length === this.ValidIPv6GroupsCount) replaced = replaced.replace(/::/, '');
+    ip = segments.filter((segment) => segment.length > 0).join(':');
+
+    let replaced = ip.replace(this.CompressIPv6Regex, '::');
+
+    segments = replaced.split(':');
+
+    // If the segment length is 8 and the far left segment has :: then we need to remove it
+    if (segments.length === this.ValidIPv6GroupsCount) {
+      replaced = replaced.replace(/^::/, '');
+    }
 
     return replaced;
   }
