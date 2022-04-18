@@ -111,7 +111,7 @@ describe('IPv6', () => {
   // Converting a number to an IPv6 address
   describe('#numberToIPv6', () => {
     it('should return the IPv6 for any number between 0n and 0xffffffffffffffffffffffffffffffffn', () => {
-      expect(net.numberToIPv6(0x7f000001)).toBe('::7f00:0001');
+      expect(net.numberToIPv6(0x7f000001)).toBe('::7f00:1');
       expect(net.numberToIPv6(0x1)).toBe('::1');
       expect(net.numberToIPv6(0xfe800000000000000000000000000001n)).toBe('fe80::1');
       expect(net.numberToIPv6(0xffffffffffffffffffffffffffffffffn)).toBe('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff');
@@ -142,8 +142,8 @@ describe('IPv6', () => {
     });
 
     it('should convert bigint to number and still produce the correct ip', () => {
-      expect(net.numberToIPv6(0x7f000001n)).toBe('::7f00:0001');
-      expect(net.numberToIPv6(0x0a000001n)).toBe('::a00:0001');
+      expect(net.numberToIPv6(0x7f000001n)).toBe('::7f00:1');
+      expect(net.numberToIPv6(0x0a000001n)).toBe('::a00:1');
       expect(net.numberToIPv6(0xfe800000000000000000000000000001n)).toBe('fe80::1');
       expect(net.numberToIPv6(0xffffffffffffffffffffffffffffffffn)).toBe('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff');
       expect(net.numberToIPv6(0x7f000001n, false)).toBe('0000:0000:0000:0000:0000:0000:7f00:0001');
@@ -161,7 +161,7 @@ describe('IPv6', () => {
   describe('#ipv6CIDRToStartEnd', () => {
     it('should return the correct start and end for any valid ipv6 cidr', () => {
       expect(net.ipv6CIDRToStartEnd('::1/128')).toEqual(['::1', '::1']);
-      expect(net.ipv6CIDRToStartEnd('fd0::/8')).toEqual(['0f00::', '0fff:ffff:ffff:ffff:ffff:ffff:ffff:ffff']);
+      expect(net.ipv6CIDRToStartEnd('fd0::/8')).toEqual(['f00::', 'fff:ffff:ffff:ffff:ffff:ffff:ffff:ffff']);
       expect(net.ipv6CIDRToStartEnd('::1/128', false)).toEqual([
         '0000:0000:0000:0000:0000:0000:0000:0001',
         '0000:0000:0000:0000:0000:0000:0000:0001',
@@ -196,7 +196,7 @@ describe('IPv6', () => {
   describe('#ipv6StartEndToCIDR', () => {
     it('should return the correct cidr for any valid ipv6 start and end', () => {
       expect(net.ipv6StartEndToCIDR('::1', '::1')).toBe('::1/128');
-      expect(net.ipv6StartEndToCIDR('0f00::', '0fff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')).toBe('0f00::/8');
+      expect(net.ipv6StartEndToCIDR('0f00::', '0fff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')).toBe('f00::/8');
       expect(net.ipv6StartEndToCIDR('::1', '::1', false)).toBe('0000:0000:0000:0000:0000:0000:0000:0001/128');
       expect(net.ipv6StartEndToCIDR('fd0::', '0fd0:ffff:ffff:ffff:ffff:ffff:ffff:ffff', false)).toBe(
         '0fd0:0000:0000:0000:0000:0000:0000:0000/16',
@@ -211,7 +211,7 @@ describe('IPv6', () => {
 
     it('should return the start/128 if the start and end are the same', () => {
       expect(net.ipv6StartEndToCIDR('::1', '::1')).toBe('::1/128');
-      expect(net.ipv6StartEndToCIDR('fd0::', 'fd0::')).toBe('0fd0::/128');
+      expect(net.ipv6StartEndToCIDR('fd0::', 'fd0::')).toBe('fd0::/128');
       expect(net.ipv6StartEndToCIDR('::1', '::1', false)).toBe('0000:0000:0000:0000:0000:0000:0000:0001/128');
       expect(net.ipv6StartEndToCIDR('fd0::', 'fd0::', false)).toBe('0fd0:0000:0000:0000:0000:0000:0000:0000/128');
     });
