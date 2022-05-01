@@ -177,6 +177,12 @@ describe('IPv6', () => {
       expect(net.ipv6CIDRToStartEnd('127.0.0.1/8')).toStrictEqual([null, null]);
     });
 
+    it('should return null if the mask bits are invalid or out of range', () => {
+      expect(net.ipv4CIDRToStartEnd('::1/129')).toStrictEqual([null, null]);
+      expect(net.ipv4CIDRToStartEnd('fd0::/foo')).toStrictEqual([null, null]);
+      expect(net.ipv4CIDRToStartEnd('::/-1')).toStrictEqual([null, null]);
+    });
+
     it('should return the cidr subnet if the cidr subnet has no mask specified', () => {
       // It assumes /32 for the mask if none is specified
       expect(net.ipv6CIDRToStartEnd('::1')).toEqual(['::1', '::1']);
@@ -308,6 +314,17 @@ describe('IPv6', () => {
       expect(net.isIPv6InCidrRange('fd0c', '::/0')).toBe(true);
     });
 
+    it("should return false if the subnet is not a valid ipv6", () => {
+      expect(net.isIPv6InCidrRange('::1', '10.0.0.0/8')).toBe(false);
+      expect(net.isIPv6InCidrRange('foo', 'foo/8')).toBe(false);
+    });
+
+    it('should set the mask bits to 128 if the mask was not specified', () => {
+      expect(net.isIPv6InCidrRange('::1', '::1')).toBe(true);
+      expect(net.isIPv6InCidrRange('::1', '::1/')).toBe(true);
+      expect(net.isIPv6InCidrRange('::1', 'fdc0::/')).toBe(false);
+    });
+
     it('should return false if the ip is not a valid ipv6 address', () => {
       expect(net.isIPv6InCidrRange('127.0.0.1', '::1/128')).toBe(false);
       expect(net.isIPv6InCidrRange('foo', 'fdc0::/8')).toBe(false);
@@ -340,6 +357,51 @@ describe('IPv6', () => {
     it('should return false if ip is not a valid ipv6 address', () => {
       expect(net.isIPv6InCidrRangeList('127.0.0.1', ['::1/8'])).toBe(false);
       expect(net.isIPv6InCidrRangeList('foo', ['::/8'])).toBe(false);
+    });
+  });
+
+  // Checking if an IPv6 address is within a range (x.x.x.x-y) or cidr (x.x.x.x/y)
+  describe('#isIPv6InCidrOrRange', () => {
+    it('should return false if the ip or range is empty', () => {
+      expect(net.isIPv6InCidrOrRange('', '::1-::1')).toBe(false);
+      expect(net.isIPv6InCidrOrRange('::', '')).toBe(false);
+      expect(net.isIPv6InCidrOrRange('', '')).toBe(false);
+    });
+
+    it('should return true if the ip is equal to the range', () => {
+      expect(net.isIPv6InCidrOrRange('::1', '::1')).toBe(true);
+      expect(net.isIPv6InCidrOrRange('fdc0::', 'fdc0::')).toBe(true);
+    });
+
+    it('should return false if the ip is not a valid ipv6 address', () => {
+      expect(net.isIPv6InCidrOrRange('foo', '::1-::1')).toBe(false);
+      expect(net.isIPv6InCidrOrRange('10.0.0.1', '::1-::1')).toBe(false);
+    });
+
+    it('should return true if the ip is in the range', () => {
+      expect(net.isIPv6InCidrOrRange('::1', '::1-::2')).toBe(true);
+      expect(net.isIPv6InCidrOrRange('::1', '::1/128')).toBe(true);
+      expect(net.isIPv6InCidrOrRange('::1', '::1/8')).toBe(true);
+      expect(net.isIPv6InCidrOrRange('::1', 'fdc0::/8')).toBe(false);
+    });
+  });
+
+  // Checking if an IPv6 address is within a list of ranges (x.x.x.x-y) or cidrs (x.x.x.x/y)
+  describe('#isIPv6InCidrOrRangeList', () => {
+    it('should return false if the range list is empty', () => {
+      expect(net.isIPv6InCidrOrRangeList('::', [])).toBe(false);
+      expect(net.isIPv6InCidrOrRangeList('', [])).toBe(false);
+    });
+
+    it('should return false if the ip is not a valid ipv6 address', () => {
+      expect(net.isIPv6InCidrOrRangeList('10.0.0.0', ['::1-::1'])).toBe(false);
+      expect(net.isIPv6InCidrOrRangeList('foo', ['::1-::1'])).toBe(false);
+    });
+
+    it('should return true if the ip is in any of the ranges', () => {
+      expect(net.isIPv6InCidrOrRangeList('::1', ['::1-::1', 'fdc0::/8'])).toBe(true);
+      expect(net.isIPv6InCidrOrRangeList('::1', ['::1-::1', '::ffff:ffff:ffff:ffff/128'])).toBe(true);
+      expect(net.isIPv6InCidrOrRangeList('::1', ['fccf::/8', '::ffff:ffff:ffff:ffff/128'])).toBe(false);
     });
   });
 

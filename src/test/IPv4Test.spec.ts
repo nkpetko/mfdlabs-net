@@ -95,6 +95,12 @@ describe('IPv4', () => {
       expect(net.ipv4CIDRToStartEnd('::1')).toStrictEqual([null, null]);
     });
 
+    it('should return null if the mask bits are invalid or out of range', () => {
+      expect(net.ipv4CIDRToStartEnd('10.0.0.0/33')).toStrictEqual([null, null]);
+      expect(net.ipv4CIDRToStartEnd('12.12.12.12/foo')).toStrictEqual([null, null]);
+      expect(net.ipv4CIDRToStartEnd('127.0.0.0/-1')).toStrictEqual([null, null]);
+    });
+
     it('should return the cidr subnet if the cidr subnet has no mask specified', () => {
       // It assumes /32 for the mask if none is specified
       expect(net.ipv4CIDRToStartEnd('10.0.0.0')).toStrictEqual(['10.0.0.0', '10.0.0.0']);
@@ -142,6 +148,12 @@ describe('IPv4', () => {
       // /32
       expect(net.isIPv4InRange('10.0.0.0', '10.0.0.0')).toBe(true);
       expect(net.isIPv4InRange('172.22.22.3', '172.22.2.34')).toBe(false);
+    });
+
+    it('should transform * to 0-255', () => {
+      expect(net.isIPv4InRange('10.0.0.0', '10.0.*.*')).toBe(true);
+      expect(net.isIPv4InRange('127.0.0.1', '127.0.*.*')).toBe(true);
+      expect(net.isIPv4InRange('172.16.0.2', '172.16.*.*')).toBe(true);
     });
 
     it('should return false if the ip is not a valid ipv4 address', () => {
@@ -208,6 +220,12 @@ describe('IPv4', () => {
       expect(net.isIPv4InNetmask('10.0.0.1', '0.0.0.0/0.0.0.0')).toBe(true);
     });
 
+    it("should set the mask to 32 bits if it's not a valid ipv4", () => {
+      expect(net.isIPv4InNetmask('10.0.0.1', '10.0.0.1/foo')).toBe(true);
+      expect(net.isIPv4InNetmask('127.0.0.1', '127.0.0.1/::')).toBe(true);
+      expect(net.isIPv4InNetmask('172.16.0.1', '10.0.0.1/foo')).toBe(false);
+    });
+
     it('should return false if the ip is not a valid ipv4 address', () => {
       expect(net.isIPv4InNetmask('::1', '10.0.0.0/255.0.0.0')).toBe(false);
       expect(net.isIPv4InNetmask('foo', '192.168.0.0/255.255.0.0')).toBe(false);
@@ -270,6 +288,12 @@ describe('IPv4', () => {
     it('should return true if the cidr is 0.0.0.0/0', () => {
       // /0
       expect(net.isIPv4InCidrRange('127.0.0.1', '0.0.0.0/0')).toBe(true);
+    });
+
+    it('should set the mask to 32 bits if it is not set', () => {
+      expect(net.isIPv4InCidrRange('10.0.0.0', '10.0.0.0')).toBe(true);
+      expect(net.isIPv4InCidrRange('127.0.0.1', '127.0.0.1')).toBe(true);
+      expect(net.isIPv4InCidrRange('172.16.0.10', '10.0.0.0')).toBe(false);
     });
 
     it('should return false if the ip is not a valid ipv4 address', () => {
@@ -339,7 +363,10 @@ describe('IPv4', () => {
     it('should return true if the ip is in any of the ranges', () => {
       // 10.0.0.0/8 and 127.0.0.0/8
       expect(net.isIPv4InCidrNetmaskOrRangeList('127.0.0.1', ['10.0.0.0/8', '127.0.0.0/255.0.0.0'])).toBe(true);
-      expect(net.isIPv4InCidrNetmaskOrRangeList('10.0.0.1', ['127.0.0.0/255.0.0.0', '10.0.0.0-10.255.255.255'])).toBe(true);
+      expect(net.isIPv4InCidrNetmaskOrRangeList('10.0.0.1', ['127.0.0.0/255.0.0.0', '10.0.0.0-10.255.255.255'])).toBe(
+        true,
+      );
+      expect(net.isIPv4InCidrNetmaskOrRangeList('172.16.0.10', ['10.0.0.0/8', '127.0.0.0/8'])).toBe(false);
     });
 
     it('should return false if ranges is an empty array', () => {
@@ -351,7 +378,6 @@ describe('IPv4', () => {
       expect(net.isIPv4InCidrNetmaskOrRangeList('::1', ['10.0.0.0/8'])).toBe(false);
       expect(net.isIPv4InCidrNetmaskOrRangeList('foo', ['127.0.0.0/8'])).toBe(false);
     });
-
   });
 
   // Checking if IP is RFC1918
