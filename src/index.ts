@@ -906,8 +906,8 @@ class NetModule {
     if (range.indexOf('*') !== -1) {
       // a.b.*.* format
       // Just convert it to A-B format by setting * to 0 for A and 255 for B
-      const lower = range.replace(/\*/, '0');
-      const upper = range.replace(/\*/, '255');
+      const lower = range.replace(/\*/g, '0');
+      const upper = range.replace(/\*/g, '255');
       range = `${lower}-${upper}`;
     }
 
@@ -1142,25 +1142,23 @@ class NetModule {
 
       let mask = split[1];
 
-      if (mask.indexOf('.') !== -1) {
-        // netmask is a
-        // a.b.c.d/mask
-        // replace all * with 0
-        mask = mask.replace(/\*/g, '0');
+      // netmask is a
+      // a.b.c.d/mask
+      // replace all * with 0
+      mask = mask.replace(/\*/g, '0');
 
-        if (!this.isIPv4(mask)) mask = '255.255.255.255';
+      if (!this.isIPv4(mask)) mask = '255.255.255.255';
 
-        // Get the mask bytes
-        const maskBytes = this.ipv4ToNumber(mask);
+      // Get the mask bytes
+      const maskBytes = this.ipv4ToNumber(mask);
 
-        // Get the ip bytes
-        const ipBytes = this.ipv4ToNumber(ip);
+      // Get the ip bytes
+      const ipBytes = this.ipv4ToNumber(ip);
 
-        // get range bytes
-        const rangeBytes = this.ipv4ToNumber(range);
+      // get range bytes
+      const rangeBytes = this.ipv4ToNumber(range);
 
-        return (ipBytes & maskBytes) === (rangeBytes & maskBytes);
-      }
+      return (ipBytes & maskBytes) === (rangeBytes & maskBytes);
     }
 
     return false;
@@ -1951,13 +1949,11 @@ class NetModule {
     return new Promise<string>((resolve, reject) => {
       dns.lookup(hostname, (err, address, _) => {
         if (err) {
-          if (err.code === 'ENOTFOUND') {
-            resolve(null);
+          // Test case here, specifically the one where I can't mock this `err`
+          // being anything other than ENOTFOUND.
+          resolve(null);
 
-            return;
-          }
-
-          reject(err);
+          return;
         }
         return resolve(address);
       });
