@@ -1972,9 +1972,7 @@ class NetModule {
    */
   public static getLocalIPv4(): string {
     const netInterfaces = os.networkInterfaces();
-    for (const interfaceName in netInterfaces) {
-      const netInterface = netInterfaces[interfaceName];
-
+    for (const netInterface of netInterfaces) {
       for (const alias of netInterface) {
         if (
           alias.family === 'IPv4' &&
@@ -2011,9 +2009,7 @@ class NetModule {
    */
   public static getLocalIPv6(): string {
     const netInterfaces = os.networkInterfaces();
-    for (const interfaceName in netInterfaces) {
-      const netInterface = netInterfaces[interfaceName];
-
+    for (const netInterface of netInterfaces) {
       for (const alias of netInterface) {
         if (
           alias.family === 'IPv6' &&
@@ -2048,9 +2044,7 @@ class NetModule {
    */
   public static getPublicIPv4FromInterfaces(): string {
     const netInterfaces = os.networkInterfaces();
-    for (const interfaceName in netInterfaces) {
-      const netInterface = netInterfaces[interfaceName];
-
+    for (const netInterface of netInterfaces) {
       for (const alias of netInterface) {
         if (
           alias.family === 'IPv4' &&
@@ -2087,9 +2081,7 @@ class NetModule {
    */
   public static getPublicIPv6FromInterfaces(): string {
     const netInterfaces = os.networkInterfaces();
-    for (const interfaceName in netInterfaces) {
-      const netInterface = netInterfaces[interfaceName];
-
+    for (const netInterface of netInterfaces) {
       for (const alias of netInterface) {
         if (
           alias.family === 'IPv6' &&
