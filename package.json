@@ -1,6 +1,6 @@
 {
   "name": "@mfdlabs/net",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A networking library for Node.js. Includes methods for parsing IP addresses, fetching Route Tables, and more.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
