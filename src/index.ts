@@ -167,16 +167,6 @@ class NetModule {
     /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
   /**
-   * A regex to match ethernet network interfaces from netwokInterfaces().
-   */
-  public static readonly EthernetInterfaceRegex = /^eth[0-9]+$/;
-
-  /**
-   * A regex to match WiFi network interfaces from netwokInterfaces().
-   */
-  public static readonly WifiInterfaceRegex = /^(wlan[0-9]+|WiFi)$/gi;
-
-  /**
    * A constant that represents the maximum number of segments in an IPv6 address.
    */
   public static readonly ValidIPv6GroupsCount = 8 as const;
@@ -1983,8 +1973,6 @@ class NetModule {
   public static getLocalIPv4(): string {
     const netInterfaces = os.networkInterfaces();
     for (const interfaceName in netInterfaces) {
-      if (!this.EthernetInterfaceRegex.test(interfaceName) && !this.WifiInterfaceRegex.test(interfaceName)) continue;
-
       const netInterface = netInterfaces[interfaceName];
 
       for (const alias of netInterface) {
@@ -2024,8 +2012,6 @@ class NetModule {
   public static getLocalIPv6(): string {
     const netInterfaces = os.networkInterfaces();
     for (const interfaceName in netInterfaces) {
-      if (!this.EthernetInterfaceRegex.test(interfaceName) && !this.WifiInterfaceRegex.test(interfaceName)) continue;
-
       const netInterface = netInterfaces[interfaceName];
 
       for (const alias of netInterface) {
@@ -2063,8 +2049,6 @@ class NetModule {
   public static getPublicIPv4FromInterfaces(): string {
     const netInterfaces = os.networkInterfaces();
     for (const interfaceName in netInterfaces) {
-      if (!this.EthernetInterfaceRegex.test(interfaceName) && !this.WifiInterfaceRegex.test(interfaceName)) continue;
-
       const netInterface = netInterfaces[interfaceName];
 
       for (const alias of netInterface) {
@@ -2104,8 +2088,6 @@ class NetModule {
   public static getPublicIPv6FromInterfaces(): string {
     const netInterfaces = os.networkInterfaces();
     for (const interfaceName in netInterfaces) {
-      if (!this.EthernetInterfaceRegex.test(interfaceName) && !this.WifiInterfaceRegex.test(interfaceName)) continue;
-
       const netInterface = netInterfaces[interfaceName];
 
       for (const alias of netInterface) {
