@@ -60,7 +60,9 @@ describe('IPv6', () => {
 
     it('should return the input if it is not a valid IPv6 address', () => {
       expect(net.compressIPv6('foo')).toBe('foo');
-      expect(net.compressIPv6('2001:0db8:85a3:0000:0000:8a2e:0370:7334:')).toBe('2001:0db8:85a3:0000:0000:8a2e:0370:7334:');
+      expect(net.compressIPv6('2001:0db8:85a3:0000:0000:8a2e:0370:7334:')).toBe(
+        '2001:0db8:85a3:0000:0000:8a2e:0370:7334:',
+      );
       expect(net.compressIPv6('127.0.0.1')).toBe('127.0.0.1');
     });
   });
@@ -314,7 +316,7 @@ describe('IPv6', () => {
       expect(net.isIPv6InCidrRange('fd0c', '::/0')).toBe(true);
     });
 
-    it("should return false if the subnet is not a valid ipv6", () => {
+    it('should return false if the subnet is not a valid ipv6', () => {
       expect(net.isIPv6InCidrRange('::1', '10.0.0.0/8')).toBe(false);
       expect(net.isIPv6InCidrRange('foo', 'foo/8')).toBe(false);
     });
