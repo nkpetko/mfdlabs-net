@@ -167,6 +167,11 @@ class NetModule {
     /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
   /**
+   * A regex to match Windows Pseudo Interfaces.
+   */
+  public static readonly Win32PseudoInterfaceRegex = /[Ll]oopback [Pp]seudo-[Ii]nterface \d{1,2}|vEthernet\s?(\(.+\))?/;
+
+  /**
    * A constant that represents the maximum number of segments in an IPv6 address.
    */
   public static readonly ValidIPv6GroupsCount = 8 as const;
@@ -1980,7 +1985,8 @@ class NetModule {
           alias.family === 'IPv4' &&
           alias.address !== 'localhost' &&
           !this.isIPv4Loopback(alias.address) &&
-          this.isIPv4RFC1918(alias.address)
+          this.isIPv4RFC1918(alias.address) &&
+          !this.Win32PseudoInterfaceRegex.test(netInterfaceName)
         ) {
           return alias.address;
         }
@@ -2018,7 +2024,8 @@ class NetModule {
         if (
           alias.family === 'IPv6' &&
           !this.isIPv6Loopback(alias.address) &&
-          (this.isIPv6RFC3879(alias.address) || this.isIPv6RFC4193(alias.address))
+          (this.isIPv6RFC3879(alias.address) || this.isIPv6RFC4193(alias.address)) &&
+          !this.Win32PseudoInterfaceRegex.test(netInterfaceName)
         ) {
           return alias.address;
         }
@@ -2057,7 +2064,8 @@ class NetModule {
           alias.address !== 'localhost' &&
           !this.isIPv4Loopback(alias.address) &&
           !this.isIPv4RFC1918(alias.address) &&
-          !this.isIPv4LinkLocal(alias.address)
+          !this.isIPv4LinkLocal(alias.address) &&
+          !this.Win32PseudoInterfaceRegex.test(netInterfaceName)
         ) {
           return alias.address;
         }
@@ -2096,7 +2104,8 @@ class NetModule {
           !this.isIPv6Loopback(alias.address) &&
           !this.isIPv6RFC4193(alias.address) &&
           !this.isIPv6RFC3879(alias.address) &&
-          !this.isIPv4LinkLocal(alias.address)
+          !this.isIPv4LinkLocal(alias.address) &&
+          !this.Win32PseudoInterfaceRegex.test(netInterfaceName)
         ) {
           return alias.address;
         }
