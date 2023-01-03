@@ -1,6 +1,6 @@
 {
   "name": "@mfdlabs/net",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A networking library for Node.js. Includes methods for parsing IP addresses, fetching Route Tables, and more.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com/mfdlabs/net.git"
+    "url": "git@github.com/mfdlabs/node-networking.git"
   },
   "author": "Nikita Petko <petko@vmminfra.net>",
   "license": "Apache-2.0",
